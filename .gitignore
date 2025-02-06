@@ -9,3 +9,5 @@ __pycache__
 *.xml
 *.iml
 *.h5
+ICs
+venv
