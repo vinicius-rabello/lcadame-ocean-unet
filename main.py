@@ -6,6 +6,7 @@ from DA.DAuNet import (
 )  # Import numerical and ML-based time-stepping functions
 from utils.plotResults import plotResults  # Import function to plot results
 from utils.calcMetrics import calcMetrics  # Import function to calculate metrics
+import constants as const  # Import constants file
 import os
 import warnings
 
@@ -25,19 +26,16 @@ if not os.path.exists(dir_path):
 else:
     print(f"Directory {dir_path} already exists.")
 
-# Verify the directory exists by listing its contents
-print(f"Contents of {dir_path}: {os.listdir(dir_path)}")
-
 # Define mean and variance for initial conditions or noise
-mean_ = np.array([0.00025023, -0.00024681])
-var_ = np.array([9.9323115, 0.18261143])
+mean_ = const.mean_
+var_ = const.var_
 
 #######################################################################
 ### Load dataset for truth and observations #########
 
 # Define spatial dimensions
-Lx = 46  # Size of x (stick to multiples of 10)
-Ly = 68  # Size of y
+Lx = const.Lx  # Size of x (stick to multiples of 10)
+Ly = const.Ly  # Size of y
 
 # Load the dataset containing the true state (e.g., ocean currents, weather data)
 psi = np.load("data/oneYear.npy")
@@ -54,21 +52,19 @@ print("Shape of psi:", psi.shape)
 ######## Emulate Observation with noise ########
 
 # Define standard deviation for measurement noise
-sig_m = 0.15
+sig_m = const.sig_m
 
 #############################################################################################################
 # Prepare Observations from exact simulation
 #############################################################################################################
-DA_cycles = int(5)  # Number of time steps between data assimilation cycles
+DA_cycles = const.DA_cycles  # Number of time steps between data assimilation cycles
 obs = np.zeros(
     [int(np.size(psi, 0) / DA_cycles), Nlat, Nlon, 2]
 )  # Initialize observation array
-obs_count = 0
 
 # Extract observations at regular intervals (every DA_cycles time steps)
-for k in range(DA_cycles, np.size(psi, 0), DA_cycles):
-    obs[obs_count, :, :, :] = psi[k, :, :, :]
-    obs_count = obs_count + 1
+for i, k in enumerate(range(DA_cycles, np.size(psi, 0), DA_cycles)):
+    obs[i, :, :, :] = psi[k, :, :, :]
 #############################################################################################################
 
 ########### Start initial condition ##########
@@ -77,20 +73,20 @@ psi0 = psi[0, :, :, :]  # Initial state for the simulation
 
 #############################################################################################################
 # Define ensemble sizes
-N = 20  # Number of ML-based ensemble members
-M = 20  # Number of numerical ensemble members
+N = const.N  # Number of ML-based ensemble members
+M = const.M  # Number of numerical ensemble members
 
 print("Number of numerical ensemble members:", M)
 print("Number of ML-based ensemble members:", N)
 
 # Define standard deviation for initial condition noise
-sig_b = 0.8
+sig_b = const.sig_b
 #############################################################################################################
 
 #############################################################################################################
 # Memory Allocation
 #############################################################################################################
-T = 300  # Total simulation time in days
+T = const.T  # Total simulation time in days
 
 # Initialize arrays for storing numerical and ML-based ensemble states
 psi_num = np.zeros([M, 2 * Nlat * Nlon])  # Numerical ensemble states
