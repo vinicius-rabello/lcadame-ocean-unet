@@ -4,6 +4,7 @@ import numpy as np
 from KalmanFilters.EnKalman import EnKF
 from DA.DAuNet import oneStep_Numerical, oneStep_ML
 from utils.plotResults import plotResults
+from utils.calcMetrics import calcMetrics
 import os
 
 import warnings
@@ -34,75 +35,6 @@ var_ = np.array([9.9323115, 0.18261143])
 
 #######################################################################
 
-#####################################################################################
-def calcMetrics(psi, psi_exact, psi_exact_average):
-    a = np.size(psi[0])
-    b = np.size(psi[1])
-    Ek1 = (
-        np.linalg.norm(psi[:, :, 0] - psi_exact[:, :, 0])
-        / a
-        * np.max(np.absolute(psi_exact[:, :, 0]))
-    )
-    Ek2 = (
-        np.linalg.norm(psi[:, :, 1] - psi_exact[:, :, 1])
-        / b
-        * np.max(np.absolute(psi_exact[:, :, 1]))
-    )
-
-    den11 = np.sum(
-        np.multiply(
-            psi[:, :, 0] - psi_exact_average[:, :, 0],
-            psi[:, :, 0] - psi_exact_average[:, :, 0],
-        )
-    )
-    den12 = np.sum(
-        np.multiply(
-            psi_exact[:, :, 0] - psi_exact_average[:, :, 0],
-            psi_exact[:, :, 0] - psi_exact_average[:, :, 0],
-        )
-    )
-    den21 = np.sum(
-        np.multiply(
-            psi[:, :, 1] - psi_exact_average[:, :, 1],
-            psi[:, :, 1] - psi_exact_average[:, :, 1],
-        )
-    )
-    den22 = np.sum(
-        np.multiply(
-            psi_exact[:, :, 1] - psi_exact_average[:, :, 1],
-            psi_exact[:, :, 1] - psi_exact_average[:, :, 1],
-        )
-    )
-
-    den11 = max(1.0e-12, den11)
-    den12 = max(1.0e-12, den12)
-    den21 = max(1.0e-12, den21)
-    den22 = max(1.0e-12, den22)
-
-    Acc1 = (
-        np.sum(
-            np.multiply(
-                psi[:, :, 0] - psi_exact_average[:, :, 0],
-                psi_exact[:, :, 0] - psi_exact_average[:, :, 0],
-            )
-        )
-        / (den11 * den12) ** 0.5
-    )
-    Acc2 = (
-        np.sum(
-            np.multiply(
-                psi[:, :, 1] - psi_exact_average[:, :, 1],
-                psi_exact[:, :, 1] - psi_exact_average[:, :, 1],
-            )
-        )
-        / (den21 * den22) ** 0.5
-    )
-
-    # Calculate MSE for psi[:,:,0] and psi[:,:,1]
-    MSE1 = np.mean((psi[:, :, 0] - psi_exact[:, :, 0]) ** 2)
-    MSE2 = np.mean((psi[:, :, 1] - psi_exact[:, :, 1]) ** 2)
-
-    return np.array([Ek1, Ek2, Acc1, Acc2, MSE1, MSE2])
 
 
 
@@ -114,7 +46,6 @@ def calcMetrics(psi, psi_exact, psi_exact_average):
 Lx = 46  # 96  #46. #size of x -- stick to multiples of 10
 Ly = 68  # 192 #68.
 psi = np.load("ICs/oneYear.npy")
-# psi = np.load('Data-LR/oneYearLR.npy')
 print(np.shape(psi), "*****")
 Nlat = np.size(psi, 1)  # np.size(psi,2)
 Nlon = np.size(psi, 2)  # np.size(psi,3)
@@ -126,7 +57,6 @@ print("shape of psi", psi.shape)
 ######## Emulate Observation with noise ########
 
 sig_m = 0.15  # standard deviation for measurement noise
-# R = sig_m**2*np.eye(Nlat*Nlon*2,Nlat*Nlon*2)
 
 #############################################################################################################
 # Prepare Observations from exact simulation
@@ -154,8 +84,6 @@ print("number of numerical ens", M)
 print("number of DD ens", N)
 
 sig_b = 0.8
-# B = sig_b**2*np.eye(2*Nlat*Nlon,Nlat*Nlon*2)
-# Q = 0.0*np.eye(2*Nlat*Nlon,Nlat*Nlon*2)
 #############################################################################################################
 
 
@@ -211,7 +139,6 @@ while t < T + 1:
     # one step of numerical integration of our ensemble
     psi_num = oneStep_Numerical(psi_num, Nlat, Nlon)
     print(np.shape(psi_true), np.shape(psi_num))
-    # print(psi_true[0]-psi_num[0])
     # ========================================================================================================
     if t > 0 and (t + 1) % DA_cycles == 0:
         print(t + 1, "--------------------------------")
@@ -253,7 +180,6 @@ while t < T + 1:
         )
 
     # ========================================================================================================
-    # print(metrics[t, 4] / (t+1))
     MSE1 = metrics[t, 4]
     MSE2 = metrics[t, 5]
     total_MSE1 += MSE1
@@ -274,5 +200,3 @@ mean_MSE2 = total_MSE2 / (T + 1)
 print(f"Mean MSE1 over {T + 1} timesteps: {mean_MSE1}")
 print(f"Mean MSE2 over {T + 1} timesteps: {mean_MSE2}")
 #############################################################################################################
-# MSE
-# print()
