@@ -2,7 +2,7 @@ from models.drymodel import drymodel
 from models.stn import model
 import numpy as np
 
-model.load_weights("G_46_68.weights.h5")
+model.load_weights("models/weights/G_46_68.weights.h5")
 
 ####################################################################################
 # oneStep time progress using both machine learning and numerical integration
