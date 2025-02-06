@@ -1,28 +1,40 @@
 import numpy as np
-from keras.layers import (
-    Input,
-    Convolution2D,
-    MaxPooling2D,
-    UpSampling2D,
-    ZeroPadding2D
-)
+
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+# from keras.layers import (
+#     Input,
+#     Conv2D,
+#     MaxPooling2D,
+#     UpSampling2D,
+#     ZeroPadding2D,
+#     Concatenate,
+#     Cropping2D
+# )
 
 from keras.callbacks import History
 
 
-history = History()
+# history = History()
 
-from keras.layers import Conv2D, Cropping2D, ZeroPadding2D
-from keras.layers import Input
-from keras.models import Model
-from keras.layers import Conv2D
-from EnKalman import EnKF
-
+# from keras.models import Model
+from KalmanFilters.EnKalman import EnKF
+from models.stn import model
 import os
 from PIL import Image
 
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings("ignore")
+
+#####################################################################################
+# from tensorflow.keras.optimizers import Adam
+
+from scipy.sparse.linalg import cg, LinearOperator
+
 # Define the directory and file path
-dir_path = r"../imagess"
+dir_path = r"./images"
 file_path = os.path.join(dir_path, "Solver_000000.png")
 
 # Ensure the directory exists
@@ -59,88 +71,75 @@ except Exception as e:
 
 
 ### Define Data-driven architecture ######
-def stn(input_shape):
-    inputs = Input(shape=input_shape)
+# def stn(input_shape):
+#     inputs = Input(shape=input_shape)
 
-    padd = ZeroPadding2D(((1, 1), (0, 0)))(inputs)
+#     padd = ZeroPadding2D(((1, 1), (0, 0)))(inputs)
 
-    layer1_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(padd)
-    layer2_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer1_conv
-    )
-    layer3_pool = MaxPooling2D(pool_size=(2, 2))(layer2_conv)
+#     layer1_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(padd)
+#     layer2_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer1_conv
+#     )
+#     layer3_pool = MaxPooling2D(pool_size=(2, 2))(layer2_conv)
 
-    layer4_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer3_pool
-    )
-    layer5_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer4_conv
-    )
-    layer6_pool = MaxPooling2D(pool_size=(2, 2))(layer5_conv)
+#     layer4_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer3_pool
+#     )
+#     layer5_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer4_conv
+#     )
+#     layer6_pool = MaxPooling2D(pool_size=(2, 2))(layer5_conv)
 
-    layer7_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer6_pool
-    )
-    layer8_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer7_conv
-    )
+#     layer7_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer6_pool
+#     )
+#     layer8_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer7_conv
+#     )
 
-    layer10_up = keras.layers.Concatenate(axis=-1)(
-        [
-            Convolution2D(32, (2, 2), activation="relu", padding="same")(
-                UpSampling2D(size=(2, 2))(layer8_conv)
-            ),
-            layer5_conv,
-        ]
-    )
-    layer11_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer10_up
-    )
-    layer12_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer11_conv
-    )
+#     layer10_up = Concatenate(axis=-1)(
+#         [
+#             Conv2D(32, (2, 2), activation="relu", padding="same")(
+#                 UpSampling2D(size=(2, 2))(layer8_conv)
+#             ),
+#             layer5_conv,
+#         ]
+#     )
+#     layer11_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer10_up
+#     )
+#     layer12_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer11_conv
+#     )
 
-    layer14_up = keras.layers.Concatenate(axis=-1)(
-        [
-            Convolution2D(32, (2, 2), activation="relu", padding="same")(
-                UpSampling2D(size=(2, 2))(layer12_conv)
-            ),
-            layer2_conv,
-        ]
-    )
-    layer15_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer14_up
-    )
-    layer16_conv = Convolution2D(32, (5, 5), activation="relu", padding="same")(
-        layer15_conv
-    )
-    # missing layers 17
+#     layer14_up = Concatenate(axis=-1)(
+#         [
+#             Conv2D(32, (2, 2), activation="relu", padding="same")(
+#                 UpSampling2D(size=(2, 2))(layer12_conv)
+#             ),
+#             layer2_conv,
+#         ]
+#     )
+#     layer15_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer14_up
+#     )
+#     layer16_conv = Conv2D(32, (5, 5), activation="relu", padding="same")(
+#         layer15_conv
+#     )
 
-    ### Use tanh in this last layer
-    # layer18_conv = Convolution2D(2, (5, 5), activation='linear',padding='same')(layer16_conv)
+#     cropped_outputs = Cropping2D(((1, 1), (0, 0)))(layer16_conv)
+#     outputs = Conv2D(2, (5, 5), activation="linear", padding="same")(cropped_outputs)
 
-    cropped_outputs = Cropping2D(((1, 1), (0, 0)))(layer16_conv)
-    outputs = Conv2D(2, (5, 5), activation="linear", padding="same")(cropped_outputs)
+#     model = Model(inputs, outputs)
 
-    model = Model(inputs, outputs)
-
-    return model
+#     return model
 
 
-import sys
-import numpy as np
 
-import warnings
 
-# Ignore all warnings
-warnings.filterwarnings("ignore")
-
-#####################################################################################
-from tensorflow.keras.optimizers import Adam
-
-model = stn(input_shape=(46, 68, 2))
-model.compile(optimizer=Adam(), loss="mean_squared_error", metrics=["accuracy"])
-model.summary()
+# model = stn(input_shape=(46, 68, 2))
+# model.compile(optimizer=Adam(), loss="mean_squared_error", metrics=["accuracy"])
+# model.summary()
 model.load_weights("G_46_68.weights.h5")
 mean_ = np.array([0.00025023, -0.00024681])
 var_ = np.array([9.9323115, 0.18261143])
@@ -352,16 +351,6 @@ def drymodel(psiIN, finalT):
 
     psiAll = np.zeros(((N, N2, 2)))
     # Timestepping:
-    cnt, cnt_month = 0, 0
-    cnt_ave = 0
-    ave_u1, ave_u2, ave_uv1, ave_uv2, ave_T1, ave_T2 = (
-        np.zeros(N2),
-        np.zeros(N2),
-        np.zeros(N2),
-        np.zeros(N2),
-        np.zeros(N2),
-        np.zeros(N2),
-    )
     for i in range(1, ts + 1):
         if i % 100 == 0:
             print("Timestep:", i, "/", ts, flush=True)
@@ -440,8 +429,7 @@ def drymodel(psiIN, finalT):
     return psiAll
 
 
-import numpy as np
-from scipy.sparse.linalg import cg, LinearOperator
+
 
 
 def approximate_inverse_cg(A, tol=1e-6, max_iter=1000):
@@ -464,10 +452,6 @@ def approximate_inverse_cg(A, tol=1e-6, max_iter=1000):
     return A_inv_approx
 
 # %%
-import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-import multiprocessing
 
 
 ########################################################################
@@ -537,7 +521,7 @@ def plotResults(Lx, Ly, psi, psi_exact, metrics, index, special):
     fig.text(0.5, 0.01, metrics_text, ha="center", fontsize=10)
 
     # Display the plots
-    plt.savefig(f"imagess/Solver_{index:0{6}}.png", dpi=300)
+    plt.savefig(f"images/Solver_{index:0{6}}.png", dpi=300)
     plt.close()
 
     return
@@ -671,7 +655,7 @@ def oneStep_ML(psi_ensemble_num0, Nlat, Nlon, numML, mean, var, sig):
 
     return resultEnsemble
 
-from sklearn.metrics import mean_squared_error
+
 ### Load dataset for truth and Obs #########
 
 
