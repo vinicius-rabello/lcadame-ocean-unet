@@ -1,14 +1,9 @@
-Data-LR
-HR-Data
-imagess
-imagest
 __pycache__
 *.pth
-*.npy
 *.txt
 *.xml
 *.iml
 *.h5
-ICs
-venv
 *.png
+venv
+train.npy

@@ -45,7 +45,7 @@ var_ = np.array([9.9323115, 0.18261143])
 
 Lx = 46  # 96  #46. #size of x -- stick to multiples of 10
 Ly = 68  # 192 #68.
-psi = np.load("ICs/oneYear.npy")
+psi = np.load("data/oneYear.npy")
 print(np.shape(psi), "*****")
 Nlat = np.size(psi, 1)  # np.size(psi,2)
 Nlon = np.size(psi, 2)  # np.size(psi,3)
