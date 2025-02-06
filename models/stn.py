@@ -1,4 +1,3 @@
-import numpy as np
 from keras.models import Model
 from tensorflow.keras.optimizers import Adam
 from keras.layers import (
@@ -80,7 +79,3 @@ def stn(input_shape):
 
 model = stn(input_shape=(46, 68, 2))
 model.compile(optimizer=Adam(), loss="mean_squared_error", metrics=["accuracy"])
-model.summary()
-#model.load_weights("G_46_68.weights.h5")
-#mean_ = np.array([0.00025023, -0.00024681])
-#var_ = np.array([9.9323115, 0.18261143])
