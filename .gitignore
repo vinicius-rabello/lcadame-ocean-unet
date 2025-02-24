@@ -1,6 +1,5 @@
 __pycache__
 *.pth
-*.txt
 *.xml
 *.iml
 *.h5
