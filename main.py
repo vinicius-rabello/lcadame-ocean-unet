@@ -107,7 +107,7 @@ metrics = np.zeros((T + 1, 6))
 # Initial condition
 #############################################################################################################
 # Perturb the initial condition with noise for each ensemble member
-for k in range(0, N):
+for k in range(0, M):
     psi_num[k, :] = psi0.flatten() + np.random.normal(
         0,
         sig_b,
@@ -150,7 +150,7 @@ while t < T + 1:
     if t > 0 and (t + 1) % DA_cycles == 0:
         print(t + 1, "--------------------------------")
         # Machine learning-based time step
-        psi_ML = oneStep_ML(psi_num, Nlat, Nlon, N * M, mean_, var_, 0.12)
+        psi_ML = oneStep_ML(psi_num, Nlat, Nlon, N * M, mean_, var_, 0.12) # check this N*M argument
         # Apply Ensemble Kalman Filter to update the ensemble
         psi_num = EnKF(
             psi_ML, psi_true[0].reshape([Nlat, Nlon, 2]), psi_num, N, M, Nlat, Nlon

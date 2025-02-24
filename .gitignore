@@ -8,3 +8,4 @@ __pycache__
 venv
 train.npy
 .idea
+psiIN.npy

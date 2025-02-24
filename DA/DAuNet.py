@@ -11,7 +11,7 @@ def oneStep_Numerical(psi_ensemble_num0, Nlat, Nlon):
     M = psi_ensemble_num0.shape[0]
     psi_ensemble_num_new = np.zeros_like(psi_ensemble_num0)
 
-    # --- Evolve numerical ensembles  with numerical solver
+    # --- Evolve numerical ensembles with numerical solver
     for k in range(0, M):
         psi_ensemble_num_new[k, :] = (
             drymodel(psi_ensemble_num0[k, :].reshape([Nlat, Nlon, 2]), 1.0)

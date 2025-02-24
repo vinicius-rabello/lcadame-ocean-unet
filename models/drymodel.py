@@ -280,4 +280,5 @@ def drymodel(psiIN, finalT):
             if i % st == 0:
                 psiAll[:, :, 0] = np.transpose(psi_1[1])
                 psiAll[:, :, 1] = np.transpose(psi_2[1])
+
     return psiAll
