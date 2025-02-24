@@ -72,3 +72,6 @@ python main.py
 
 ## Author
 **i dont know**
+
+# Data Assimilation Flowchart
+![alt text](https://github.com/vinicius-rabello/lcadame-ocean-unet/blob/main/da_flowchart.png?raw=true)
