@@ -5,9 +5,6 @@
 ## Features
 - Uses **numerical** and **ML-based** models for ensemble forecasts
 - Implements **Ensemble Kalman Filter (EnKF)** for data assimilation
-- Supports **observations with noise** and **perturbed initial conditions**
-- Computes **error metrics (MSE, RMSE)** over the simulation period
-- Generates **visualizations** for the updated state and error metrics
 
 ## Setup
 ### Clone the Repository
