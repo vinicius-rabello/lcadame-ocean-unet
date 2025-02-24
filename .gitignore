@@ -2,7 +2,6 @@ __pycache__
 *.pth
 *.xml
 *.iml
-*.h5
 *.png
 venv
 train.npy
