@@ -1,6 +1,19 @@
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np
+import os
+import shutil
+
+# Define the folder path
+folder_path = "images"
+
+# Check if the folder exists
+if os.path.exists(folder_path):
+    # Delete all contents inside the folder
+    shutil.rmtree(folder_path)
+
+# Create a new empty folder
+os.makedirs(folder_path)
 
 def plotResults(Lx, Ly, psi, psi_exact, metrics, index, special):
 
