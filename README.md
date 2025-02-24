@@ -8,6 +8,7 @@
 
 ## Setup
 ### Clone the Repository
+Cloning takes some time because data/oneYear.npy is a big file.
 ```sh
 git clone https://github.com/vinicius-rabello/lcadame-ocean-unet.git
 ```
